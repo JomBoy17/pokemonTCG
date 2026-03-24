@@ -1,67 +1,90 @@
-import PokemonModal from "./PokemonModal";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGetCardsQuery } from "../features/api/pokemonApi";
 import PokemonCard from "./PokemonCard";
+import PokemonModal from "./PokemonModal";
+import Loader from "./Loader";
 
 function PokemonList() {
+  const [search, setSearch] = useState("");
+  const [debounced, setDebounced] = useState("");
+  const [type, setType] = useState("");
+  const [page, setPage] = useState(1);
+  const [selectedCard, setSelectedCard] = useState(null);
 
-const [search, setSearch] = useState("");
-const [type, setType] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(search), 500);
+    return () => clearTimeout(t);
+  }, [search]);
 
-const [selectedCard, setSelectedCard] = useState(null);
+  const { data, isLoading, error } = useGetCardsQuery({
+    
+    search: debounced,
+    type,
+    page,
+  });
+  
 
-const { data, isLoading, error } = useGetCardsQuery(
-  type ? `${search} type:${type}` : search
-);
+  return (
+    <div>
+      <div className="controls">
+        <input
+          placeholder="Search Pokémon..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1);
+          }}
+        />
 
-return (
+        <select
+          onChange={(e) => {
+            setType(e.target.value);
+            setPage(1);
+          }}
+        >
+          <option value="">All Types</option>
+          <option value="Fire">Fire</option>
+          <option value="Water">Water</option>
+          <option value="Grass">Grass</option>
+        </select>
+      </div>
 
-<div>
+      {isLoading && <Loader />}
+      {error && <h2>Error loading data</h2>}
 
-<div className="controls">
+      {!isLoading && data?.data?.length === 0 && (
+  <h2 className="status">😢 No Pokémon found</h2>
+)}
 
-<input
-type="text"
-placeholder="🔍 Search Pokémon..."
-value={search}
-onChange={(e) => setSearch(e.target.value)}
-/>
-
-<select onChange={(e)=>setType(e.target.value)}>
-
-<option value="">All Types</option>
-<option value="Fire">🔥 Fire</option>
-<option value="Water">💧 Water</option>
-<option value="Grass">🌿 Grass</option>
-<option value="Electric">⚡ Electric</option>
-<option value="Psychic">🧠 Psychic</option>
-
-</select>
-
+      <div className="grid">
+  {data?.data?.map((card) => (
+    <div key={card.id} onClick={() => setSelectedCard(card)}>
+      <PokemonCard card={card} />
+    </div>
+  ))}
 </div>
 
-{isLoading && <h2 className="status">Loading...</h2>}
-{error && <h2 className="status">Error loading data</h2>}
+{/* PAGINATION TOP */}
+<div className="pagination top">
+  <button onClick={() => setPage(page - 1)} disabled={page === 1}>
+    ⬅ Previous
+  </button>
 
-<div className="grid">
+  <span>Page {page}</span>
 
-{data?.data?.map((card) => (
-<div onClick={() => setSelectedCard(card)}>
-  <PokemonCard key={card.id} card={card} />
-</div>
-))}
-{selectedCard && (
-  <PokemonModal
-    card={selectedCard}
-    onClose={() => setSelectedCard(null)}
-  />
-)}  
+  <button onClick={() => setPage(page + 1)}>
+    Next ➡
+  </button>
 </div>
 
-</div>
-
-);
-
+      {selectedCard && (
+        <PokemonModal
+          card={selectedCard}
+          onClose={() => setSelectedCard(null)}
+        />
+      )}
+    </div>
+  );
 }
 
 export default PokemonList;

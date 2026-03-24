@@ -1,0 +1,15 @@
+.pokeball {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, red 50%, white 50%);
+  border: 6px solid black;
+  margin: 40px auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
