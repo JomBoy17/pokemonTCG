@@ -5,7 +5,12 @@ function PokemonModal({ card, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+      >
+
         <button className="close-btn" onClick={onClose}>
           ✖
         </button>
@@ -13,9 +18,14 @@ function PokemonModal({ card, onClose }) {
         <img src={card.images?.large} alt={card.name} />
 
         <h2>{card.name}</h2>
-        <p>HP: {card.hp}</p>
-        <p>{card.types?.join(", ")}</p>
+
+        <p><strong>HP:</strong> {card.hp || "N/A"}</p>
+        <p><strong>Type:</strong> {card.types?.join(", ")}</p>
+        <p><strong>Artist:</strong> {card.artist}</p>
+        <p><strong>Set:</strong> {card.set?.name}</p>
+
       </div>
+
     </div>
   );
 }
