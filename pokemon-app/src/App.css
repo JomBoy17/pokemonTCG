@@ -89,17 +89,56 @@ body{
 
 /* GRID */
 
-.grid{
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap:20px;
-  padding:20px;
-  max-width:1200px;
-  margin:0 auto;
+/* src/App.css */
+
+.grid {
+  display: grid;
+  /* This is the magic line for responsiveness */
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  justify-items: center;
 }
 
-.grid{
-  animation: fadeIn 0.4s ease;
+/* Ensure images don't overflow their containers */
+.card-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column; /* Stacks title and links */
+    gap: 15px;
+    padding: 15px 10px;
+    text-align: center;
+  }
+
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap; /* Wraps buttons to a second line if needed */
+    gap: 8px;
+  }
+
+  .nav-btn {
+    padding: 8px 12px;
+    font-size: 0.9rem; /* Smaller buttons for smaller thumbs */
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+.modal-content {
+  width: 90%;          /* Occupy most of the screen width */
+  max-width: 500px;    /* But don't get too huge on desktop */
+  margin: 20px auto;
+  padding: 20px;
+  max-height: 90vh;    /* Prevent it from being taller than the screen */
+  overflow-y: auto;    /* Add scroll if the content is long */
 }
 
 @keyframes fadeIn{
