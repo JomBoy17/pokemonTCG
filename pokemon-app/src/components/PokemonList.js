@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useGetCardsQuery } from "../features/api/pokemonApi";
+
+// ❌ STOP doing this (it creates the circular loop):
+// import { PokemonCard, PokemonModal, SkeletonCard } from "./"; 
+
+// ✅ DO THIS instead (direct paths):
 import PokemonCard from "./PokemonCard";
 import PokemonModal from "./PokemonModal";
 import SkeletonCard from "./SkeletonCard";
@@ -10,32 +15,23 @@ function PokemonList() {
   const [type, setType] = useState("");
   const [page, setPage] = useState(1);
   const [selectedCard, setSelectedCard] = useState(null);
-  const [isPageLoading, setIsPageLoading] = useState(false);
 
-  // 🔥 Debounce search
+  // Debounce search input
   useEffect(() => {
     const t = setTimeout(() => setDebounced(search), 500);
     return () => clearTimeout(t);
   }, [search]);
 
-  // 🔥 API CALL
+  // API CALL
   const { data, isLoading, isFetching, error } = useGetCardsQuery({
     search: debounced,
     type,
     page,
   });
 
-  // 🔥 STOP LOADING AFTER FETCH
-  useEffect(() => {
-    if (!isFetching) {
-      setIsPageLoading(false);
-    }
-  }, [isFetching]);
-
   return (
     <div>
-
-      {/* 🔍 CONTROLS */}
+      {/* 🔍 SEARCH & FILTER */}
       <div className="controls">
         <input
           placeholder="🔍 Search Pokémon..."
@@ -59,59 +55,43 @@ function PokemonList() {
         </select>
       </div>
 
-      {/* ❌ ERROR */}
+      {/* ❌ ERROR STATE */}
       {error && <h2 className="status">❌ Error loading data</h2>}
 
-      {/* 😢 EMPTY */}
-      {!isLoading && data?.data?.length === 0 && (
+      {/* 😢 EMPTY STATE */}
+      {!isLoading && !isFetching && data?.data?.length === 0 && (
         <h2 className="status">😢 No Pokémon found</h2>
       )}
 
       {/* 🟦 GRID */}
       <div className="grid">
-
-        {(isLoading || isFetching || isPageLoading) ? (
-
-          Array.from({ length: 8 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))
-
+        {isLoading || isFetching ? (
+          // Show 8 skeletons while loading or fetching new page
+          Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
-
           data?.data?.map((card) => (
             <div key={card.id} onClick={() => setSelectedCard(card)}>
               <PokemonCard card={card} />
             </div>
           ))
-
         )}
-
       </div>
 
       {/* 🔥 PAGINATION */}
-      <div className="pagination top">
-
+      <div className="pagination">
         <button
-          onClick={() => {
-            setIsPageLoading(true);
-            setPage(page - 1);
-          }}
-          disabled={page === 1}
+          onClick={() => setPage((prev) => prev - 1)}
+          disabled={page === 1 || isFetching}
         >
           ⬅ Previous
         </button>
-
         <span>Page {page}</span>
-
         <button
-          onClick={() => {
-            setIsPageLoading(true);
-            setPage(page + 1);
-          }}
+          onClick={() => setPage((prev) => prev + 1)}
+          disabled={isFetching}
         >
           Next ➡
         </button>
-
       </div>
 
       {/* 🪟 MODAL */}
@@ -121,7 +101,6 @@ function PokemonList() {
           onClose={() => setSelectedCard(null)}
         />
       )}
-
     </div>
   );
 }

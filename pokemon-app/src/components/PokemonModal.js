@@ -1,33 +1,21 @@
 import React from "react";
 
-function PokemonModal({ card, onClose }) {
+const PokemonModal = ({ card, onClose }) => {
   if (!card) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-
-      <div
-        className="modal-content"
-        onClick={(e) => e.stopPropagation()}
-      >
-
-        <button className="close-btn" onClick={onClose}>
-          ✖
-        </button>
-
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <button className="close-btn" onClick={onClose}>✖</button>
         <img src={card.images?.large} alt={card.name} />
-
         <h2>{card.name}</h2>
-
         <p><strong>HP:</strong> {card.hp || "N/A"}</p>
         <p><strong>Type:</strong> {card.types?.join(", ")}</p>
         <p><strong>Artist:</strong> {card.artist}</p>
         <p><strong>Set:</strong> {card.set?.name}</p>
-
       </div>
-
     </div>
   );
-}
+};
 
 export default PokemonModal;
